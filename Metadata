@@ -113,17 +113,3 @@ def get_pc_reviewer_date(game_name):
 
     return review_date
 
-def write_excel():
-    book = load_workbook('meta_games.xlsx')
-    sheet = book.active
-    sheet['B1'].value = 'Title Name'
-    sheet['C1'].value = 'Metacritic Score'
-    sheet['D1'].value = 'Total Number of PC Reviews'
-    sheet['E1'].value = 'Review Score'
-    sheet['F1'].value = 'Reviewer'
-    sheet['G1'].value = 'Review Date'
-    sheet['H1'].value = 'Review Quotes'
-    
-    book.save()
-
-print(get_metascore(game_titles[0].lower))
