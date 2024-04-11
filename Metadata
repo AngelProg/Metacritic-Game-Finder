@@ -1,0 +1,129 @@
+import requests
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from functools import reduce
+from openpyxl import Workbook, load_workbook
+
+headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) '\
+           'AppleWebKit/537.36 (KHTML, like Gecko) '\
+           'Chrome/75.0.3770.80 Safari/537.36'}
+
+game_title = ""
+game_titles = []
+url = f"https://www.metacritic.com/browse/game/?releaseYearMin=1958&releaseYearMax=2024&page={1}"
+
+response = requests.get(url, headers=headers)
+
+soup = BeautifulSoup(response.text, "html.parser")
+
+for i in range(1, 2):
+    url = f"https://www.metacritic.com/browse/game/?releaseYearMin=1958&releaseYearMax=2024&page={i}"
+    
+    response = requests.get(url, headers=headers)
+
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    result = soup.find(class_="c-productListings")
+
+    result_2 = result.find_all("h3",class_="c-finderProductCard_titleHeading")
+    count = 1
+    for tag in result_2:
+        game_titles.append(tag.text.replace(f"{count}. ", "").replace(" ", "-").replace(":", ""))
+        count += 1
+
+def remove_digits(lst):
+    return [reduce(lambda x, y: x+y, filter(lambda x: not x.isdigit(), s), '') for s in lst]
+
+game_titles = remove_digits(game_titles)
+"""works c:"""
+    
+    
+def get_metascore(game_name):
+
+    url = f"https://www.metacritic.com/game/{game_name}/"
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.text, "html.parser")
+    try:
+        result = soup.find(class_="c-productScoreInfo_scoreNumber u-float-right")
+        return result.text
+    except:
+        return 0
+
+def get_pc_reviews(game_name):
+    url = f"https://www.metacritic.com/game/{game_name}/"
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.text, "html.parser")
+    try:
+        result = soup.find(href=f"/game/{game_name}/critic-reviews/?platform=pc", class_="c-gamePlatformTile u-grid c-gamePlatformTileLink")
+        result_2 = result.find(class_="g-text-xsmall")
+        return result_2.text
+    except:
+        return 0   
+    
+def get_pc_reviewer_score(game_name):
+    scores = []
+    driver = webdriver.Edge()
+    url= f"https://www.metacritic.com/game/{game_name}/critic-reviews/?platform=pc"
+    driver.get(url)
+    content = driver.page_source.encode('utf-8').strip()
+    soup = BeautifulSoup(content,"html.parser")
+    result = soup.find_all(class_="c-siteReviewHeader_reviewScore")
+    for i in range(len(result)):
+        scores.append(result[i].text)
+
+    return scores
+
+
+def get_pc_reviewer_text(game_name):
+    text_reviews = []
+    driver = webdriver.Edge()
+    url= f"https://www.metacritic.com/game/{game_name}/critic-reviews/?platform=pc"
+    driver.get(url)
+    content = driver.page_source.encode('utf-8').strip()
+    soup = BeautifulSoup(content,"html.parser")
+    result = soup.find_all(class_="c-siteReview_quote g-outer-spacing-bottom-small")
+    for i in range(len(result)):
+        text_reviews.append(result[i].text)
+
+    return text_reviews
+
+def get_pc_reviewer_name(game_name):
+    names = []
+    driver = webdriver.Edge()
+    url= f"https://www.metacritic.com/game/{game_name}/critic-reviews/?platform=pc"
+    driver.get(url)
+    content = driver.page_source.encode('utf-8').strip()
+    soup = BeautifulSoup(content,"html.parser")
+    result = soup.find_all(class_="c-siteReviewHeader_publisherLogo")
+    for i in range(len(result)):
+        names.append(result[i].text)
+
+    return names
+
+def get_pc_reviewer_date(game_name):
+    review_date = []
+    driver = webdriver.Edge()
+    url= f"https://www.metacritic.com/game/{game_name}/critic-reviews/?platform=pc"
+    driver.get(url)
+    content = driver.page_source.encode('utf-8').strip()
+    soup = BeautifulSoup(content,"html.parser")
+    result = soup.find_all(class_="c-siteReviewHeader_reviewDate g-color-gray80 u-text-uppercase")
+    for i in range(len(result)):
+        review_date.append(result[i].text)
+
+    return review_date
+
+def write_excel():
+    book = load_workbook('meta_games.xlsx')
+    sheet = book.active
+    sheet['B1'].value = 'Title Name'
+    sheet['C1'].value = 'Metacritic Score'
+    sheet['D1'].value = 'Total Number of PC Reviews'
+    sheet['E1'].value = 'Review Score'
+    sheet['F1'].value = 'Reviewer'
+    sheet['G1'].value = 'Review Date'
+    sheet['H1'].value = 'Review Quotes'
+    
+    book.save()
+
+print(get_metascore(game_titles[0].lower))
