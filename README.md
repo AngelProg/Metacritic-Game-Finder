@@ -1,2 +1,6 @@
 # Metacritic-Game-Finder
-It is a project that can search for all the 13k games available in Metacritic. It not only can get a list of all games, but it can also get the metascore, the reviewers name, score, review and date of the review.
+The statement describes a project designed to search for information on the approximately 13,000 games available on Metacritic. Metacritic is a popular website that aggregates reviews of media products, including video games, assigning each a "Metascore" based on the weighted average of critics' reviews. However, as of now, Metacritic doesn't offer an official API (Application Programming Interface) for developers to access this data programmatically.
+
+Given the absence of an official API, this project serves as a workaround solution to retrieve information about games from the Metacritic database. It not only gathers a comprehensive list of games but also extracts detailed information such as the Metascore, the names of reviewers, their individual scores, the review text, and the date of each review.
+
+By developing this project, developers can access valuable data from Metacritic's extensive game database, enabling them to analyze trends, compare games, or integrate this information into their own applications or platforms. Despite the lack of an official API, this solution allows users to harness the wealth of data available on Metacritic for various purposes.
